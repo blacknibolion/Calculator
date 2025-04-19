@@ -1,0 +1,7 @@
+C:\Users\Blacknibolion\Desktop\Calculator\bin\Release\net9.0\publish\Calculator.exe
+C:\Users\Blacknibolion\Desktop\Calculator\bin\Release\net9.0\publish\appsettings.Development.json
+C:\Users\Blacknibolion\Desktop\Calculator\bin\Release\net9.0\publish\appsettings.json
+C:\Users\Blacknibolion\Desktop\Calculator\bin\Release\net9.0\publish\Calculator.dll
+C:\Users\Blacknibolion\Desktop\Calculator\bin\Release\net9.0\publish\Calculator.deps.json
+C:\Users\Blacknibolion\Desktop\Calculator\bin\Release\net9.0\publish\Calculator.runtimeconfig.json
+C:\Users\Blacknibolion\Desktop\Calculator\bin\Release\net9.0\publish\Calculator.pdb
