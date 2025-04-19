@@ -1,0 +1,63 @@
+@page
+@model CalculatorApp.Pages.CalculatorModel
+@{
+    ViewData["Title"] = "Calculator";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow rounded-4">
+                <div class="card-body p-4">
+                    <h3 class="text-center mb-4">Calculator</h3>
+
+                    <form method="post">
+                        <div class="mb-3">
+                            <label asp-for="FirstNumber" class="form-label">First Number</label>
+                            <input asp-for="FirstNumber" class="form-control" step="any" />
+                            <span asp-validation-for="FirstNumber" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="SecondNumber" class="form-label">Second Number</label>
+                            <input asp-for="SecondNumber" class="form-control" step="any" />
+                            <span asp-validation-for="SecondNumber" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Select Operation</label>
+                            <input type="hidden" asp-for="Operation" id="Operation" />
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="submit" class="btn btn-outline-primary" onclick="setOperation('+')">+</button>
+                                <button type="submit" class="btn btn-outline-primary" onclick="setOperation('-')">−</button>
+                                <button type="submit" class="btn btn-outline-primary" onclick="setOperation('*')">×</button>
+                                <button type="submit" class="btn btn-outline-primary" onclick="setOperation('/')">÷</button>
+                                <button type="submit" class="btn btn-outline-primary" onclick="setOperation('%')">%</button>
+                                <button type="submit" class="btn btn-outline-primary" onclick="setOperation('^')">^</button>
+                                <button type="submit" class="btn btn-outline-primary" onclick="setOperation('%')">M</button>
+                                <button type="submit" class="btn btn-outline-primary" onclick="setOperation('sqrt')">√</button>
+                                <button type="submit" class="btn btn-outline-primary" onclick="setOperation('log')">log</button>
+                            </div>
+                            <span asp-validation-for="Operation" class="text-danger"></span>
+                        </div>
+                    </form>
+
+                    @if (Model.Result is not null)
+                    {
+                        <div class="alert alert-info mt-4">
+                            Result: <strong>@Model.Result</strong>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function setOperation(op) {
+            document.getElementById("Operation").value = op;
+        }
+    </script>
+}
+
