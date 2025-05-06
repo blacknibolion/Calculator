@@ -1,47 +1,91 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
+using CalculatorApp; // Ensure this matches the namespace of PolynomialParser
+using System.Collections.Generic;
 
 namespace CalculatorApp.Pages
 {
     public class CalculatorModel : PageModel
     {
         [BindProperty]
-        [Required]
-        public decimal FirstNumber { get; set; }
+        public string FormType { get; set; } = string.Empty;
 
         [BindProperty]
-        [Required]
-        public decimal SecondNumber { get; set; }
+        //[Required(ErrorMessage = "The FirstNumber field is required.")]
+        public decimal? FirstNumber { get; set; }
 
         [BindProperty]
-        [Required]
+        //[Required(ErrorMessage = "The SecondNumber field is required.")]
+        public decimal? SecondNumber { get; set; }
+
+        [BindProperty]
+       // [Required(ErrorMessage = "The Operation field is required.")]
         public string Operation { get; set; } = string.Empty;
 
-        public string? Result { get; set; }
+        [BindProperty]
+        public string Polynomial { get; set; } = string.Empty;
 
-        public void OnPost()
+        public string? Result { get; set; }
+        public string? Derivative { get; set; }
+
+        public List<(double x, double fx)> PointsOriginal { get; set; } = new();
+        public List<(double x, double fx)> PointsDerived { get; set; } = new();
+
+        public IActionResult OnPost()
         {
-            try
+            if (FormType == "Arithmetic")
             {
-                Result = Operation switch
+                if (!FirstNumber.HasValue || !SecondNumber.HasValue || string.IsNullOrWhiteSpace(Operation))
                 {
-                    "+" => (FirstNumber + SecondNumber).ToString(),
-                    "-" => (FirstNumber - SecondNumber).ToString(),
-                    "*" => (FirstNumber * SecondNumber).ToString(),
-                    "/" => SecondNumber != 0 ? (FirstNumber / SecondNumber).ToString() : "Cannot divide by zero",
-                    "%" => (FirstNumber % SecondNumber).ToString(),
-                    "sqrt" => FirstNumber >= 0 ? Math.Sqrt((double)FirstNumber).ToString() : "Cannot calculate square root of a negative number",
-                    "^" => Math.Pow((double)FirstNumber, (double)SecondNumber).ToString(),
-                    "M" => (FirstNumber % SecondNumber).ToString(),
-                    "log" => Math.Log((double)FirstNumber, (double)SecondNumber).ToString(), 
-                    _ => "Invalid operation"
-                };
+                    ModelState.AddModelError(string.Empty, "All fields are required for arithmetic operations.");
+                    return Page();
+                }
+
+                try
+                {
+                    Result = Operation switch
+                    {
+                        "+" => (FirstNumber + SecondNumber).ToString(),
+                        "-" => (FirstNumber - SecondNumber).ToString(),
+                        "*" => (FirstNumber * SecondNumber).ToString(),
+                        "/" => SecondNumber != 0 ? (FirstNumber / SecondNumber).ToString() : "Cannot divide by zero",
+                        "%" => (FirstNumber % SecondNumber).ToString(),
+                        "^" => Math.Pow((double)FirstNumber, (double)SecondNumber).ToString(),
+                        "sqrt" => FirstNumber >= 0 ? Math.Sqrt((double)FirstNumber).ToString() : "Invalid sqrt input",
+                        "M" => (FirstNumber % SecondNumber).ToString(),
+                        "log" => Math.Log((double)FirstNumber, (double)SecondNumber).ToString(),
+                        _ => "Invalid operation"
+                    };
+                }
+                catch (Exception ex)
+                {
+                    Result = $"Error: {ex.Message}";
+                }
             }
-            catch (Exception ex)
+            else if (FormType == "Derivative")
             {
-                Result = $"Error: {ex.Message}";
+                if (string.IsNullOrWhiteSpace(Polynomial))
+                {
+                    ModelState.AddModelError(nameof(Polynomial), "Polynomial is required.");
+                    return Page();
+                }
+
+                var calculator = new CalculatorApp();
+
+                // Get derivative string
+                Derivative = calculator.Differentiate(Polynomial);
+
+                // Evaluate original and derived polynomials at x = -10 to 10
+                for (double x = -10; x <= 10; x += 1)
+                {
+                    PointsOriginal.Add((x, calculator.EvaluatePolynomial(Polynomial, x)));
+                    PointsDerived.Add((x, calculator.EvaluatePolynomial(Derivative, x)));
+                }
+
             }
+
+            return Page();
         }
     }
 }

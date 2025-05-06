@@ -1,4 +1,5 @@
 @page
+@using System.Text.Json
 @model CalculatorApp.Pages.CalculatorModel
 @{
     ViewData["Title"] = "Calculator";
@@ -11,7 +12,10 @@
                 <div class="card-body p-4">
                     <h3 class="text-center mb-4">Calculator</h3>
 
+                    <!-- Arithmetic Calculator -->
                     <form method="post">
+                        <input type="hidden" name="FormType" value="Arithmetic" />
+
                         <div class="mb-3">
                             <label asp-for="FirstNumber" class="form-label">First Number</label>
                             <input asp-for="FirstNumber" class="form-control" step="any" />
@@ -32,7 +36,7 @@
                                 <button type="submit" class="btn btn-outline-primary" onclick="setOperation('/')">÷</button>
                                 <button type="submit" class="btn btn-outline-primary" onclick="setOperation('%')">%</button>
                                 <button type="submit" class="btn btn-outline-primary" onclick="setOperation('^')">^</button>
-                                <button type="submit" class="btn btn-outline-primary" onclick="setOperation('%')">M</button>
+                                <button type="submit" class="btn btn-outline-primary" onclick="setOperation('M')">M</button>
                                 <button type="submit" class="btn btn-outline-primary" onclick="setOperation('sqrt')">√</button>
                                 <button type="submit" class="btn btn-outline-primary" onclick="setOperation('log')">log</button>
                             </div>
@@ -46,6 +50,67 @@
                             Result: <strong>@Model.Result</strong>
                         </div>
                     }
+
+                    <hr />
+
+                    <!-- Derivative Calculator -->
+                    <form method="post">
+                        <input type="hidden" name="FormType" value="Derivative" />
+
+                        <div class="mb-3">
+                            <label for="Polynomial" class="form-label">Enter Polynomial (e.g. 3x^2 + 2x + 1)</label>
+                            <input type="text" class="form-control" id="Polynomial" name="Polynomial" value="@Model.Polynomial" />
+                            <span asp-validation-for="Polynomial" class="text-danger"></span>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Differentiate & Graph</button>
+                    </form>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Derivative))
+                    {
+                        <div class="alert alert-success mt-4">
+                            Derivative: <strong>@Model.Derivative</strong>
+                        </div>
+                    }
+
+                    @if (Model.PointsOriginal.Any())
+                    {
+                        <div class="mt-4">
+                            <canvas id="graphCanvas" width="800" height="400"></canvas>
+                        </div>
+
+                        <script>
+                            const original = @Html.Raw(JsonSerializer.Serialize(Model.PointsOriginal));
+                            const derived = @Html.Raw(JsonSerializer.Serialize(Model.PointsDerived));
+                            const labels = original.map(p => p.x);
+                            const originalData = original.map(p => p.fx);
+                            const derivedData = derived.map(p => p.fx);
+
+                            const ctx = document.getElementById('graphCanvas').getContext('2d');
+                            new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: labels,
+                                    datasets: [
+                                        {
+                                            label: 'Original f(x)',
+                                            data: originalData,
+                                            borderColor: 'blue',
+                                            fill: false
+                                        },
+                                        {
+                                            label: "Derivative f'(x)",
+                                            data: derivedData,
+                                            borderColor: 'red',
+                                            fill: false
+                                        }
+                                    ]
+                                }
+                            });
+                        </script>
+                    }
+                    <div class="mt-4">
+                        <canvas id="graphCanvas" width="800" height="400"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -59,5 +124,6 @@
             document.getElementById("Operation").value = op;
         }
     </script>
-}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+}
